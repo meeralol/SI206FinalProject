@@ -9,13 +9,7 @@ import os
 import json
 import sqlite3
 
-def read_data(filename):
-    full_path = os.path.join(os.path.dirname(__file__), filename)
-    f = open(full_path)
-    file_data = f.read()
-    f.close()
-    json_data = json.loads(file_data)
-    return json_data
+
 
 def open_database(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
@@ -23,35 +17,37 @@ def open_database(db_name):
     cur = conn.cursor()
     return cur, conn
 
-def make_dicts(url):
+def boxofficeurl(url):
     url="https://www.boxofficemojo.com/year/2019/?grossesOption=calendarGrosses&sort=rank&sortDir=asc"
+    return url
 
-    req=requests.get(url)
+
+def getmovielist(url):
+    x = boxofficeurl(url)
+    req=requests.get(x)
     content=req.text
 
     soup=BeautifulSoup(content, features="lxml")
 
-
-#print(content)
-
-# Fun and Frustration : class = "a-text-right mojo-field-type-money mojo-estimatable"
-
-    boxoffice = soup.find_all('td', class_="a-text-right mojo-field-type-money mojo-estimatable")
     findmovies = soup.find_all('td', class_="a-text-left mojo-field-type-release mojo-cell-wide")
-
-#print(boxoffice)
-#print(len(boxoffice))
-
-
 
     nameslist = []
     for item in findmovies:
         nameslist.append(item.select('a')[0].string)
 
     finalnameslist = nameslist[0:100]
-    print("final names list")
-    print(finalnameslist)
-    print("length " + str(len(finalnameslist)))
+    
+    return finalnameslist
+
+
+    
+def getboxlist(url):
+    x = boxofficeurl(url)
+    req=requests.get(x)
+    content=req.text
+
+    soup=BeautifulSoup(content, features="lxml")
+    boxoffice = soup.find_all('td', class_="a-text-right mojo-field-type-money mojo-estimatable")
 
     boxlist = []
     for movie in boxoffice:
@@ -59,37 +55,31 @@ def make_dicts(url):
         boxlist.append(m)
 
     boxlist = boxlist[::2]
+    boxlist = boxlist[0:100]
+    
 
-    #print("the length of finalnameslist is " + str(len(finalnameslist)))
-    #print(finalnameslist)
+    return boxlist
 
-   
-    #print(boxlist)
-    #print(len(boxlist))
 
-    combinedict = {}
+def make_boxoffice_table(boxlist, nameslist, cur, conn):
+    cur.execute('DROP TABLE IF EXISTS BoxOfficeData')
+    cur.execute('CREATE TABLE IF NOT EXISTS BoxOfficeData (ID INTEGER PRIMARY KEY, Name TEXT, Amount INTEGER)')
 
-    for i in range(len(finalnameslist)):
-        combinedict[finalnameslist[i]] = boxlist[i]
-
-    print(" ")
-    print(combinedict)
-    print(len(combinedict.keys()))
-
-def make_boxoffice_table(cur, conn):
-    cur.execute('DROP TABLE IF EXISTS Box Office Data')
-    cur.execute('CREATE TABLE Box Office Data (name TEXT PRIMARY KEY, Name STRING, Gross Domestic Box Office Sales INTEGER')
-
-    for i in range(len(nameslist)):
-        cur.execute("INSERT INTO Box Office Data (Name, Gross Domestic Box Office Sales) VALUES (?,?)",(nameslist[i], boxlist[i]))
+    id = 1
+    for i in range(len(boxlist)):
+        cur.execute('INSERT INTO BoxOfficeData (ID, Name, Amount) VALUES (?, ?, ?)',(id, nameslist[i], boxlist[i])) 
+        id += 1
     conn.commit()
 
 
-def main():
-    make_dicts(url="https://www.boxofficemojo.com/year/2019/?grossesOption=calendarGrosses&sort=rank&sortDir=asc")
+boxlist = getboxlist("https://www.boxofficemojo.com/year/2019/?grossesOption=calendarGrosses&sort=rank&sortDir=asc")
+nameslist = getmovielist("https://www.boxofficemojo.com/year/2019/?grossesOption=calendarGrosses&sort=rank&sortDir=asc")
+cur, conn = open_database('boxofficedata.db')
+make_boxoffice_table(boxlist, nameslist, cur, conn)
 
 
-if __name__ == "__main__":
-    main()
+
+
+
 
 
