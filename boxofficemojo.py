@@ -61,21 +61,33 @@ def getboxlist(url):
     return boxlist
 
 
-def make_boxoffice_table(boxlist, nameslist, cur, conn):
+def make_boxoffice_table(boxlist, cur, conn):
     cur.execute('DROP TABLE IF EXISTS BoxOfficeData')
-    cur.execute('CREATE TABLE IF NOT EXISTS BoxOfficeData (ID INTEGER PRIMARY KEY, Name TEXT, Amount INTEGER)')
+    cur.execute('CREATE TABLE IF NOT EXISTS BoxOfficeData (ID INTEGER PRIMARY KEY, Amount INTEGER)')
 
     id = 1
     for i in range(len(boxlist)):
-        cur.execute('INSERT INTO BoxOfficeData (ID, Name, Amount) VALUES (?, ?, ?)',(id, nameslist[i], boxlist[i])) 
+        cur.execute('INSERT INTO BoxOfficeData (ID, Amount) VALUES (?, ?)',(id, boxlist[i])) 
         id += 1
     conn.commit()
+
+def make_names_table(nameslist, cur, conn):
+    cur.execute('DROP TABLE IF EXISTS MovieTitlesData')
+    cur.execute('CREATE TABLE IF NOT EXISTS MovieTitlesData (ID INTEGER PRIMARY KEY, Name INTEGER)')
+
+    id = 1
+    for i in range(len(nameslist)):
+        cur.execute('INSERT INTO MovieTitlesData (ID, Name) VALUES (?, ?)',(id, nameslist[i])) 
+        id += 1
+    conn.commit()
+
 
 
 boxlist = getboxlist("https://www.boxofficemojo.com/year/2019/?grossesOption=calendarGrosses&sort=rank&sortDir=asc")
 nameslist = getmovielist("https://www.boxofficemojo.com/year/2019/?grossesOption=calendarGrosses&sort=rank&sortDir=asc")
 cur, conn = open_database('boxofficedata.db')
-make_boxoffice_table(boxlist, nameslist, cur, conn)
+make_boxoffice_table(boxlist, cur, conn)
+make_names_table(nameslist, cur, conn)
 
 
 
