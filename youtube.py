@@ -4,6 +4,7 @@ import sqlite3
 import os
 import requests
 import csv
+import matplotlib.pyplot as plt
 
 
 API_KEY = "AIzaSyAtrqolfGTcMwKMlFDL3_EMMmNBtZJbuIo"
@@ -244,6 +245,63 @@ def list_of_imdb_ratings(cur, conn):
         imdb_rating_list.append(imdb_rating)
     return (imdb_rating_list)
 
+def view_vs_boxoffice(cur, conn):
+    x = list_of_views()
+    y = list_of_box_office_sales(cur, conn)
+
+    fig, ax = plt.subplots()
+
+    ax.set_xlabel('Views per Movie Trailer')
+    ax.set_ylabel('Box Office Sales ($)')
+    ax.set_title('Do views per YouTube movie trailer affect box office sales?')
+
+    plt.scatter(x, y, color = "purple")
+
+    plt.show()
+
+def like_vs_boxoffice(cur, conn):
+    x = list_of_likes()
+    y = list_of_box_office_sales(cur, conn)
+
+    fig, ax = plt.subplots()
+
+    ax.set_xlabel('Likes per Movie Trailer')
+    ax.set_ylabel('Box Office Sales ($)')
+    ax.set_title('Do likes per YouTube movie trailer affect box office sales?')
+
+    plt.scatter(x, y, color = "purple")
+
+    plt.show()
+
+def view_vs_rating(cur, conn):
+    x = list_of_views()
+    y = list_of_imdb_ratings(cur, conn)
+
+    fig, ax = plt.subplots()
+
+    ax.set_xlabel('Views per Movie Trailer')
+    ax.set_ylabel('IMDB Rating (scale of 1 to 10)')
+    ax.set_title('Do views per YouTube movie trailer predict IMDb rating?')
+
+    plt.scatter(x, y, color = "purple")
+
+    plt.show()
+
+def like_vs_rating(cur, conn):
+    x = list_of_likes()
+    y = list_of_imdb_ratings(cur, conn)
+
+    fig, ax = plt.subplots()
+
+    ax.set_xlabel('Likes per Movie Trailer')
+    ax.set_ylabel('IMDB Rating (scale of 1 to 10)')
+    ax.set_title('Do likes per YouTube movie trailer predict IMDb rating?')
+
+    plt.scatter(x, y, color = "purple")
+
+    plt.show()
+
+
 
     
 def write_calculations(filename, cur, conn):
@@ -267,5 +325,8 @@ title_list = get_movie_title(first_string) + get_movie_title(second_string)
 cur, conn = open_database('movies.db')
 make_ratings_table(final_id_list, cur, conn)
 write_calculations("final_calculations.csv", cur, conn)
-
+#view_vs_boxoffice(cur, conn)
+#like_vs_boxoffice(cur, conn)
+#view_vs_rating(cur, conn)
+#like_vs_rating(cur, conn)
 
