@@ -2,8 +2,8 @@ import requests
 import unittest
 import sqlite3
 import json
-import matplotlib
 import os
+import matplotlib.pyplot as plt
 import csv
 
 api_key = "eff62a1c"
@@ -61,6 +61,29 @@ def write_csv(data, file_name):
                 writer.writerow(["", "", "", data[i]])
 
 
+def make_runtime_rating(movie_titles):
+    runtime_list = []
+    rating_list = []
+    for movie in movie_titles:
+        runtime = float(get_runtime(movie))
+        runtime_list.append(runtime)
+        rating = float(get_imdb_rating(movie))
+        rating_list.append(rating)
+
+    x = runtime_list
+    y = rating_list
+
+    fig, ax = plt.subplots()
+
+    ax.set_xlabel('Runtime (minutes)')
+    ax.set_ylabel('IMDB Rating (scale of 1 to 10)')
+    ax.set_title('Does Runtime affect IMDB Rating?')
+
+    plt.scatter(x, y, color = "purple")
+
+    plt.show()
+
+
 
 def create_imdb_table(movie_titles, cur, conn):
     cur.execute("CREATE TABLE IF NOT EXISTS movie_data (movie_id INTEGER PRIMARY KEY, imdb_rating INTEGER, runtime INTEGER)")
@@ -85,7 +108,7 @@ def create_imdb_table(movie_titles, cur, conn):
 
         count += 1
 
-        conn.commit()   
+        conn.commit()
 
 
 
@@ -100,12 +123,12 @@ def main():
 
     file_name = "final_calculations.csv"
 
+  #  make_runtime_rating(movie_titles)
+
     # write_csv(data, file_name)
 
     create_imdb_table(movie_titles, cur, conn)
 
 
-
 if __name__ == "__main__":
     main()
-
