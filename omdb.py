@@ -76,8 +76,8 @@ def make_runtime_rating(movie_titles):
     fig, ax = plt.subplots()
 
     ax.set_xlabel('Runtime (minutes)')
-    ax.set_ylabel('IMDB Rating (scale of 1 to 10)')
-    ax.set_title('Does Runtime affect IMDB Rating?')
+    ax.set_ylabel('IMDb Rating (scale of 1 to 10)')
+    ax.set_title('Does Runtime affect IMDb Rating?')
 
     plt.scatter(x, y, color = "purple")
 
@@ -123,7 +123,7 @@ def main():
 
     file_name = "final_calculations.csv"
 
-  #  make_runtime_rating(movie_titles)
+   # make_runtime_rating(movie_titles)
 
     # write_csv(data, file_name)
 
